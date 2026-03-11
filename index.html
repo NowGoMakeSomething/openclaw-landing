@@ -175,6 +175,22 @@
       color: var(--gold);
     }
 
+    /* ─── ROLE CYCLING ANIMATION ─── */
+    .role-cycle {
+      display: inline-block;
+      color: var(--gold);
+      position: relative;
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+    .role-cycle.fade-out {
+      opacity: 0;
+      transform: translateY(-12px);
+    }
+    .role-cycle.fade-in {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
     .hero-sub {
       font-size: 17px;
       line-height: 1.65;
@@ -1200,7 +1216,7 @@
         <div class="hero-eyebrow">La revolución no es la IA. Es esto.</div>
         <h1 class="hero-headline">
           Tu Gerente de<br/>
-          Operaciones<br/>
+          <span class="role-cycle" id="roleCycle">Operaciones</span><br/>
           <em>nunca duerme.</em>
         </h1>
         <p class="hero-sub">
@@ -1774,6 +1790,30 @@
 
   <!-- ─── JS ─── -->
   <script>
+    // ─── ROLE CYCLING ANIMATION ───
+    const roles = ['Operaciones', 'Marketing', 'Ventas', 'Automatizaciones', 'Atención al Cliente'];
+    let roleIndex = 0;
+    const roleEl = document.getElementById('roleCycle');
+
+    function cycleRole() {
+      // Fade out
+      roleEl.classList.add('fade-out');
+      roleEl.classList.remove('fade-in');
+
+      setTimeout(() => {
+        roleIndex = (roleIndex + 1) % roles.length;
+        roleEl.textContent = roles[roleIndex];
+        // Fade in
+        roleEl.classList.remove('fade-out');
+        roleEl.classList.add('fade-in');
+      }, 380);
+    }
+
+    // Start cycling after 2s delay, every 2.5s
+    setTimeout(() => {
+      setInterval(cycleRole, 2500);
+    }, 2000);
+
     // ─── INTERSECTION OBSERVER (fade-up animations) ───
     const fadeEls = document.querySelectorAll('.fade-up');
     const observer = new IntersectionObserver((entries) => {
