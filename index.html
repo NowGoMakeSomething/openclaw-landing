@@ -1,0 +1,1785 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tu Asistente de IA. Vive en un Mac Mini.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ─── RESET & BASE ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0A0A0A;
+      --bg2: #111111;
+      --bg3: #161616;
+      --border: rgba(255,255,255,0.07);
+      --border-bright: rgba(255,255,255,0.14);
+      --text: #F0EDE8;
+      --text-muted: rgba(240,237,232,0.45);
+      --text-sub: rgba(240,237,232,0.65);
+      --accent: #E8E0D0;
+      --gold: #C9A96E;
+      --gold-dim: rgba(201,169,110,0.15);
+      --red: #D94F3D;
+      --font-display: 'Plus Jakarta Sans', sans-serif;
+      --font-body: 'Inter', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── GRAIN OVERLAY ─── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      pointer-events: none;
+      opacity: 0.035;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 180px 180px;
+    }
+
+    /* ─── SCROLLBAR ─── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: rgba(201,169,110,0.3); border-radius: 2px; }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 900;
+      padding: 20px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: linear-gradient(to bottom, rgba(10,10,10,0.95) 0%, rgba(10,10,10,0) 100%);
+    }
+
+    .nav-logo {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    .nav-cta {
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      transition: color 0.2s;
+    }
+    .nav-cta:hover { color: var(--text); }
+
+    /* ─── SECTION UTILITY ─── */
+    section {
+      position: relative;
+      padding: 120px 40px;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .label {
+      display: inline-block;
+      font-family: var(--font-body);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 24px;
+      opacity: 0.85;
+    }
+
+    h1, h2, h3 {
+      font-family: var(--font-display);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+    }
+
+    /* ─── HERO ─── */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding-top: 100px;
+      overflow: hidden;
+    }
+
+    .hero-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 40px;
+    }
+
+    .hero-content { position: relative; z-index: 2; }
+
+    .hero-eyebrow {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .hero-eyebrow::before {
+      content: '';
+      width: 28px;
+      height: 1px;
+      background: var(--gold);
+      opacity: 0.6;
+    }
+
+    .hero-headline {
+      font-size: clamp(48px, 6vw, 86px);
+      font-weight: 800;
+      line-height: 0.98;
+      letter-spacing: -0.04em;
+      margin-bottom: 28px;
+      color: var(--text);
+    }
+
+    .hero-headline em {
+      font-style: normal;
+      color: var(--gold);
+    }
+
+    .hero-sub {
+      font-size: 17px;
+      line-height: 1.65;
+      color: var(--text-sub);
+      margin-bottom: 44px;
+      max-width: 440px;
+      font-weight: 400;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      display: inline-block;
+      background: var(--gold);
+      color: #0A0A0A;
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-decoration: none;
+      padding: 16px 32px;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.2s, opacity 0.2s, box-shadow 0.2s;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 48px rgba(201,169,110,0.25);
+      opacity: 0.92;
+    }
+
+    .hero-spots {
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .spots-dot {
+      width: 6px; height: 6px;
+      background: var(--red);
+      border-radius: 50%;
+      display: inline-block;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* ─── 3D MAC MINI ─── */
+    .hero-visual {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      perspective: 1000px;
+      position: relative;
+    }
+
+    .mac-scene {
+      transform-style: preserve-3d;
+      animation: floatRotate 8s ease-in-out infinite;
+      position: relative;
+    }
+
+    @keyframes floatRotate {
+      0%   { transform: rotateY(-12deg) rotateX(6deg) translateY(0px); }
+      25%  { transform: rotateY(-8deg)  rotateX(8deg) translateY(-12px); }
+      50%  { transform: rotateY(-14deg) rotateX(4deg) translateY(-6px); }
+      75%  { transform: rotateY(-10deg) rotateX(9deg) translateY(-14px); }
+      100% { transform: rotateY(-12deg) rotateX(6deg) translateY(0px); }
+    }
+
+    .mac-body {
+      width: 240px;
+      height: 240px;
+      background: linear-gradient(135deg, #2A2A2A 0%, #1A1A1A 40%, #222222 100%);
+      border-radius: 20px;
+      position: relative;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.08),
+        0 40px 80px rgba(0,0,0,0.8),
+        inset 0 1px 0 rgba(255,255,255,0.12),
+        inset 0 -1px 0 rgba(0,0,0,0.4);
+      transform-style: preserve-3d;
+    }
+
+    /* Mac Mini top face */
+    .mac-top {
+      position: absolute;
+      top: -20px; left: 10px; right: 10px;
+      height: 20px;
+      background: linear-gradient(to bottom, #303030, #242424);
+      border-radius: 10px 10px 0 0;
+      transform: rotateX(90deg);
+      transform-origin: bottom;
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.5);
+    }
+
+    /* Apple logo area */
+    .mac-logo {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 48px;
+      height: 48px;
+      opacity: 0.08;
+    }
+
+    /* LED indicator */
+    .mac-led {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 6px;
+      height: 6px;
+      background: #00FF88;
+      border-radius: 50%;
+      box-shadow: 0 0 8px rgba(0,255,136,0.8), 0 0 16px rgba(0,255,136,0.4);
+      animation: ledPulse 3s ease-in-out infinite;
+    }
+    @keyframes ledPulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 8px rgba(0,255,136,0.8), 0 0 16px rgba(0,255,136,0.4); }
+      50% { opacity: 0.6; box-shadow: 0 0 4px rgba(0,255,136,0.4); }
+    }
+
+    /* Ports on side */
+    .mac-ports {
+      position: absolute;
+      right: -4px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .mac-port {
+      width: 4px;
+      height: 12px;
+      background: rgba(0,0,0,0.6);
+      border-radius: 2px;
+      box-shadow: inset 0 0 2px rgba(0,0,0,0.8);
+    }
+
+    /* Bottom stand */
+    .mac-stand {
+      width: 200px;
+      height: 12px;
+      background: linear-gradient(to bottom, #1E1E1E, #151515);
+      border-radius: 0 0 8px 8px;
+      margin: 0 auto;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    }
+
+    /* Glow under mac */
+    .mac-glow {
+      position: absolute;
+      bottom: -40px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 200px;
+      height: 60px;
+      background: radial-gradient(ellipse at center, rgba(201,169,110,0.12) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    /* Floating UI chips around the Mac */
+    .mac-chip {
+      position: absolute;
+      background: rgba(20,20,20,0.95);
+      border: 1px solid var(--border-bright);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-sub);
+      backdrop-filter: blur(12px);
+      white-space: nowrap;
+      animation: chipFloat 6s ease-in-out infinite;
+    }
+    .mac-chip span { color: var(--gold); }
+    .mac-chip-1 {
+      top: -30px; right: -50px;
+      animation-delay: 0s;
+    }
+    .mac-chip-2 {
+      bottom: 20px; right: -70px;
+      animation-delay: -2s;
+    }
+    .mac-chip-3 {
+      top: 60px; left: -80px;
+      animation-delay: -4s;
+    }
+    @keyframes chipFloat {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .chip-dot {
+      display: inline-block;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      margin-right: 6px;
+      background: var(--gold);
+    }
+    .chip-dot.green { background: #00FF88; }
+
+    /* ─── PAIN GRID ─── */
+    .pain-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      margin-top: 48px;
+      margin-bottom: 2px;
+    }
+
+    .pain-item {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      background: var(--bg2);
+      padding: 32px 28px;
+      transition: background 0.2s;
+    }
+    .pain-item:hover { background: var(--bg3); }
+
+    .pain-item--highlight {
+      background: rgba(201,169,110,0.06);
+      border: 1px solid rgba(201,169,110,0.15);
+    }
+    .pain-item--highlight:hover { background: rgba(201,169,110,0.09); }
+    .pain-item--highlight strong { color: var(--gold) !important; }
+
+    .pain-icon {
+      font-size: 22px;
+      flex-shrink: 0;
+      margin-top: 2px;
+      width: 32px;
+      text-align: center;
+    }
+
+    .pain-item strong {
+      display: block;
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+      letter-spacing: -0.01em;
+    }
+
+    .pain-item p {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    /* ─── PROBLEM SECTION ─── */
+    #problem {
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+    }
+
+    .problem-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      margin-top: 60px;
+    }
+
+    .problem-card {
+      padding: 48px 40px;
+      background: var(--bg2);
+      position: relative;
+      overflow: hidden;
+    }
+    .problem-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, transparent 60%, rgba(201,169,110,0.03) 100%);
+      pointer-events: none;
+    }
+
+    .problem-card.wrong {
+      opacity: 0.6;
+    }
+    .problem-card.wrong .card-tag {
+      color: var(--text-muted);
+      border-color: rgba(255,255,255,0.08);
+    }
+    .problem-card.right .card-tag {
+      color: var(--gold);
+      border-color: rgba(201,169,110,0.3);
+    }
+
+    .card-tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      border: 1px solid;
+      padding: 5px 10px;
+      margin-bottom: 20px;
+      border-radius: 2px;
+    }
+
+    .problem-card h3 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+
+    .problem-card p {
+      font-size: 15px;
+      color: var(--text-sub);
+      line-height: 1.7;
+    }
+
+    .problem-headline {
+      font-size: clamp(36px, 5vw, 64px);
+      font-weight: 800;
+      line-height: 1.0;
+      letter-spacing: -0.035em;
+      max-width: 640px;
+    }
+    .problem-headline em {
+      font-style: normal;
+      color: var(--gold);
+    }
+
+    /* ─── WHAT IS IT ─── */
+    #whatitis {
+      border-top: 1px solid var(--border);
+    }
+
+    .whatitis-inner {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 80px;
+      align-items: center;
+    }
+
+    .whatitis-content h2 {
+      font-size: clamp(32px, 4vw, 52px);
+      margin-bottom: 24px;
+      letter-spacing: -0.03em;
+    }
+
+    .whatitis-content p {
+      font-size: 16px;
+      line-height: 1.75;
+      color: var(--text-sub);
+      margin-bottom: 20px;
+    }
+
+    .tech-stack {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 36px;
+    }
+
+    .tech-pill {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-sub);
+      border: 1px solid var(--border);
+      padding: 8px 14px;
+      border-radius: 100px;
+      letter-spacing: 0.02em;
+    }
+
+    .hardware-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 48px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hardware-card::after {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 200px; height: 200px;
+      background: radial-gradient(ellipse at top right, rgba(201,169,110,0.06) 0%, transparent 60%);
+    }
+
+    .hw-label {
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 32px;
+    }
+
+    .hw-item {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      margin-bottom: 24px;
+    }
+    .hw-item:last-child { margin-bottom: 0; }
+
+    .hw-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--gold-dim);
+      border: 1px solid rgba(201,169,110,0.2);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .hw-text strong {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+      font-family: var(--font-display);
+    }
+    .hw-text span {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .hw-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 28px 0 24px;
+    }
+
+    .hw-item--addon {
+      opacity: 0.65;
+    }
+    .hw-item--addon:hover { opacity: 0.9; }
+
+    .hw-icon--dim {
+      background: rgba(255,255,255,0.03);
+      border-color: rgba(255,255,255,0.08);
+    }
+
+    /* ─── CAPABILITIES ─── */
+    #capabilities {
+      border-top: 1px solid var(--border);
+      background: var(--bg);
+    }
+
+    .caps-header {
+      max-width: 600px;
+      margin-bottom: 72px;
+    }
+
+    .caps-header h2 {
+      font-size: clamp(32px, 4.5vw, 58px);
+      line-height: 1.0;
+      letter-spacing: -0.035em;
+      margin-bottom: 20px;
+    }
+    .caps-header p {
+      font-size: 16px;
+      color: var(--text-sub);
+    }
+
+    .caps-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2px;
+    }
+
+    .cap-item {
+      background: var(--bg2);
+      padding: 48px 40px;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.3s;
+    }
+    .cap-item:hover { background: var(--bg3); }
+    .cap-item::before {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(to right, var(--gold), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .cap-item:hover::before { opacity: 0.5; }
+
+    .cap-number {
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--gold);
+      opacity: 0.5;
+      letter-spacing: 0.1em;
+      margin-bottom: 20px;
+    }
+
+    .cap-item h3 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+
+    .cap-item p {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
+    .cap-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 20px;
+    }
+    .cap-tag {
+      font-size: 11px;
+      color: var(--text-muted);
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 100px;
+    }
+
+    /* ─── SOCIAL PROOF ─── */
+    #proof {
+      border-top: 1px solid var(--border);
+      background: var(--bg2);
+    }
+
+    .proof-header {
+      text-align: center;
+      margin-bottom: 72px;
+    }
+    .proof-header h2 {
+      font-size: clamp(32px, 4vw, 52px);
+      letter-spacing: -0.03em;
+    }
+
+    .proof-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+    }
+
+    .proof-card {
+      background: var(--bg);
+      padding: 40px 36px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s;
+    }
+    .proof-card:hover { transform: translateY(-4px); }
+
+    .proof-card::before {
+      content: '"';
+      position: absolute;
+      top: -10px;
+      left: 28px;
+      font-family: var(--font-display);
+      font-size: 120px;
+      color: var(--gold);
+      opacity: 0.06;
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .proof-quote {
+      font-size: 22px;
+      font-weight: 700;
+      font-family: var(--font-display);
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+      margin-bottom: 28px;
+      color: var(--text);
+    }
+
+    .proof-author {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .author-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--gold-dim);
+      border: 1px solid rgba(201,169,110,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--gold);
+      flex-shrink: 0;
+    }
+
+    .author-info strong {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .author-info span {
+      font-size: 12px;
+      color: var(--gold);
+      opacity: 0.8;
+    }
+
+    /* ─── VIRAL BANNER ─── */
+    .viral-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      background: rgba(201,169,110,0.07);
+      border: 1px solid rgba(201,169,110,0.2);
+      padding: 20px 28px;
+      margin-bottom: 2px;
+      flex-wrap: wrap;
+    }
+
+    .viral-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .viral-fire {
+      font-size: 28px;
+      flex-shrink: 0;
+    }
+
+    .viral-left strong {
+      display: block;
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 4px;
+    }
+
+    .viral-left span {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .viral-platforms {
+      display: flex;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .viral-platforms span {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      letter-spacing: 0.04em;
+    }
+
+    /* ─── HOW IT WORKS ─── */
+    #howitworks {
+      border-top: 1px solid var(--border);
+    }
+
+    .hiw-header {
+      max-width: 560px;
+      margin-bottom: 80px;
+    }
+    .hiw-header h2 {
+      font-size: clamp(32px, 4.5vw, 56px);
+      letter-spacing: -0.035em;
+      margin-bottom: 16px;
+    }
+    .hiw-header p {
+      font-size: 16px;
+      color: var(--text-sub);
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      position: relative;
+    }
+
+    .steps::before {
+      content: '';
+      position: absolute;
+      top: 40px;
+      left: 80px;
+      right: 80px;
+      height: 1px;
+      background: linear-gradient(to right, var(--border), rgba(201,169,110,0.3), var(--border));
+    }
+
+    .step {
+      padding: 40px 40px 40px 0;
+      position: relative;
+    }
+
+    .step-num {
+      width: 80px;
+      height: 80px;
+      background: var(--bg2);
+      border: 1px solid var(--border-bright);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--gold);
+      margin-bottom: 28px;
+      position: relative;
+      z-index: 1;
+      transition: background 0.3s, border-color 0.3s;
+    }
+    .step:hover .step-num {
+      background: var(--gold-dim);
+      border-color: rgba(201,169,110,0.4);
+    }
+
+    .step h3 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+    .step p {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
+    /* ─── WAITLIST CTA ─── */
+    #waitlist {
+      border-top: 1px solid var(--border);
+      background: var(--bg2);
+      padding: 140px 40px;
+    }
+
+    .waitlist-inner {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .waitlist-headline {
+      font-size: clamp(40px, 5.5vw, 72px);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.0;
+      margin-bottom: 20px;
+    }
+    .waitlist-headline em {
+      font-style: normal;
+      color: var(--gold);
+    }
+
+    .waitlist-sub {
+      font-size: 17px;
+      color: var(--text-sub);
+      line-height: 1.65;
+      margin-bottom: 16px;
+    }
+
+    .spots-warning {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #D94F3D;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 48px;
+    }
+
+    /* Form */
+    .form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .field label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .field input,
+    .field textarea {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 15px;
+      padding: 16px 20px;
+      outline: none;
+      transition: border-color 0.2s;
+      border-radius: 0;
+      -webkit-appearance: none;
+    }
+    .field input::placeholder,
+    .field textarea::placeholder {
+      color: rgba(240,237,232,0.2);
+    }
+    .field input:focus,
+    .field textarea:focus {
+      border-color: rgba(201,169,110,0.4);
+    }
+
+    .field textarea {
+      resize: none;
+      height: 100px;
+      line-height: 1.6;
+    }
+
+    .form-submit {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      margin-top: 8px;
+    }
+
+    .btn-submit {
+      background: var(--gold);
+      color: #0A0A0A;
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 18px 40px;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.2s, opacity 0.2s, box-shadow 0.2s;
+    }
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 40px rgba(201,169,110,0.2);
+    }
+    .btn-submit:active { transform: translateY(0); }
+
+    .form-note {
+      font-size: 12px;
+      color: var(--text-muted);
+      max-width: 280px;
+      line-height: 1.6;
+      margin-bottom: 8px;
+    }
+
+    .form-price {
+      font-size: 13px;
+      color: var(--text-muted);
+      letter-spacing: 0.02em;
+    }
+    .form-price strong {
+      color: var(--gold);
+      font-weight: 700;
+    }
+
+    /* Success state */
+    .form-success {
+      display: none;
+      text-align: center;
+      padding: 60px 40px;
+      background: var(--bg);
+      border: 1px solid rgba(201,169,110,0.2);
+    }
+    .form-success.visible { display: block; }
+    .form-success h3 {
+      font-size: 32px;
+      margin-bottom: 12px;
+      color: var(--gold);
+    }
+    .form-success p {
+      font-size: 16px;
+      color: var(--text-sub);
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 48px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-logo {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gold);
+      opacity: 0.7;
+    }
+
+    .footer-note {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* ─── DIVIDER LINE ─── */
+    .gold-line {
+      width: 48px;
+      height: 2px;
+      background: var(--gold);
+      margin-bottom: 32px;
+      opacity: 0.6;
+    }
+
+    /* ─── FADE IN ANIMATION ─── */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 900px) {
+      nav { padding: 20px 24px; }
+      section { padding: 80px 24px; }
+      #waitlist { padding: 100px 24px; }
+      footer { padding: 40px 24px; }
+
+      .hero-inner {
+        grid-template-columns: 1fr;
+        gap: 60px;
+        padding: 0 24px;
+        text-align: center;
+      }
+      .hero-eyebrow { justify-content: center; }
+      .hero-sub { max-width: 100%; }
+      .hero-actions { justify-content: center; }
+
+      .mac-chip-1 { top: -50px; right: -20px; }
+      .mac-chip-2 { display: none; }
+      .mac-chip-3 { display: none; }
+
+      .pain-grid { grid-template-columns: 1fr; }
+      .problem-grid { grid-template-columns: 1fr; }
+      .whatitis-inner { grid-template-columns: 1fr; gap: 48px; }
+      .caps-grid { grid-template-columns: 1fr; }
+      .proof-grid { grid-template-columns: 1fr; }
+      .steps { grid-template-columns: 1fr; }
+      .steps::before { display: none; }
+      .step { padding: 0 0 40px 0; }
+      .form-row { grid-template-columns: 1fr; }
+      .form-submit { flex-direction: column; align-items: flex-start; }
+      footer { flex-direction: column; gap: 16px; text-align: center; }
+    }
+
+    @media (max-width: 480px) {
+      .hero-headline { font-size: 42px; }
+      .mac-body { width: 180px; height: 180px; }
+      .mac-stand { width: 150px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── NAV ─── -->
+  <nav>
+    <div class="nav-logo">OpenClaw</div>
+    <a href="#waitlist" class="nav-cta">Reservar mi cupo →</a>
+  </nav>
+
+  <!-- ─── HERO ─── -->
+  <section id="hero">
+    <div class="hero-inner">
+      <div class="hero-content">
+        <div class="hero-eyebrow">La revolución no es la IA. Es esto.</div>
+        <h1 class="hero-headline">
+          Tu próximo<br/>
+          empleado<br/>
+          <em>nunca duerme.</em>
+        </h1>
+        <p class="hero-sub">
+          Un asistente de IA que vive en un Mac Mini. Configurado para tu negocio.
+          Conectado a tus herramientas. Corriendo 24/7 en tu propio hardware. Sin límites.
+        </p>
+        <div class="hero-actions">
+          <a href="#waitlist" class="btn-primary">Reservar mi cupo</a>
+          <span class="hero-spots">
+            <span class="spots-dot"></span>
+            Solo 10 cupos — $1,500 USD/mes
+          </span>
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <div style="position: relative;">
+          <div class="mac-scene">
+            <div class="mac-body">
+              <svg class="mac-logo" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09z"/>
+                <path d="M15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701z"/>
+              </svg>
+              <div class="mac-led"></div>
+              <div class="mac-ports">
+                <div class="mac-port"></div>
+                <div class="mac-port"></div>
+                <div class="mac-port"></div>
+                <div class="mac-port"></div>
+              </div>
+            </div>
+            <div class="mac-stand"></div>
+            <div class="mac-glow"></div>
+
+            <!-- Floating chips -->
+            <div class="mac-chip mac-chip-1">
+              <span class="chip-dot green"></span>
+              <span>Moby</span> respondió a tu cliente
+            </div>
+            <div class="mac-chip mac-chip-2">
+              <span class="chip-dot"></span>
+              Calendario sincronizado
+            </div>
+            <div class="mac-chip mac-chip-3">
+              <span class="chip-dot green"></span>
+              WhatsApp · Telegram · Email
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── PROBLEM ─── -->
+  <section id="problem">
+    <div class="container">
+      <div class="gold-line"></div>
+      <span class="label">El problema</span>
+      <h2 class="problem-headline fade-up">
+        Estás usando la IA<br/><em>de la manera equivocada.</em>
+      </h2>
+      <p style="font-size:17px;color:var(--text-sub);margin-top:24px;max-width:560px;line-height:1.7;" class="fade-up">
+        No es culpa tuya. El mercado te vendió herramientas cuando lo que necesitabas era un operador.
+        Aquí está lo que realmente pasa:
+      </p>
+
+      <!-- Pain points grid -->
+      <div class="pain-grid fade-up">
+        <div class="pain-item">
+          <div class="pain-icon">☁️</div>
+          <div>
+            <strong>Fatiga de la nube</strong>
+            <p>Costos de API que escalan sin control. Tus datos en servidores de otros. Sin privacidad, sin ownership. Estás pagando para no ser dueño de nada.</p>
+          </div>
+        </div>
+        <div class="pain-item">
+          <div class="pain-icon">🔧</div>
+          <div>
+            <strong>La trampa del mantenimiento</strong>
+            <p>Automatizaste algo. Cambió un proceso. Todo se rompió. Los agentes de IA convencionales son frágiles. Se caen solos. Terminas arreglando más de lo que automatizan.</p>
+          </div>
+        </div>
+        <div class="pain-item">
+          <div class="pain-icon">🧩</div>
+          <div>
+            <strong>Fragmentación de herramientas</strong>
+            <p>10 SaaS que no se hablan entre sí. Zapier conectando parches. Un ecosistema que parece integrado pero que en realidad es un castillo de naipes.</p>
+          </div>
+        </div>
+        <div class="pain-item">
+          <div class="pain-icon">💸</div>
+          <div>
+            <strong>La trampa de los $15/hora</strong>
+            <p>Eres un founder. Cobras caro. Y pasas horas haciendo tareas que debería hacer alguien — o algo — mucho más barato. Tu cerebro vale $500/hora. No lo uses en emails.</p>
+          </div>
+        </div>
+        <div class="pain-item">
+          <div class="pain-icon">🤖</div>
+          <div>
+            <strong>IA que no hace nada</strong>
+            <p>ChatGPT. Copilot. Gemini. Te dan respuestas bonitas. Y después tienes que ejecutar todo tú. Son chatbots glorificados. Eso no es IA que trabaja. Eso es Google con estilo.</p>
+          </div>
+        </div>
+        <div class="pain-item pain-item--highlight">
+          <div class="pain-icon">🔥</div>
+          <div>
+            <strong>OpenClaw está viral — y cambia todo</strong>
+            <p>La demanda de Mac Minis explotó por culpa de OpenClaw. Escasez real. Titulares reales. Viral en X, TikTok y YouTube. Esto no es hype. Es el momento.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wrong vs Right -->
+      <div class="problem-grid" style="margin-top: 4px;">
+        <div class="problem-card wrong fade-up">
+          <span class="card-tag">Lo que tienes hoy</span>
+          <h3>Un chatbot que responde.</h3>
+          <p>
+            Le preguntas. Te responde. Lo cierras. Vuelves a trabajar solo.
+            No recuerda nada. No conoce tu negocio. No ejecuta nada.
+            Es una herramienta. Tú sigues siendo el operador.
+          </p>
+        </div>
+        <div class="problem-card right fade-up">
+          <span class="card-tag">Lo que necesitas</span>
+          <h3>Un operador que ejecuta.</h3>
+          <p>
+            Conoce tu negocio de memoria. Tus datos, tu hardware, tu control.
+            Responde mensajes, crea contenido, genera reportes, mueve leads.
+            No espera instrucciones. Ya está trabajando.
+            Esto es diferente.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── WHAT IS IT ─── -->
+  <section id="whatitis">
+    <div class="container">
+      <div class="whatitis-inner">
+        <div class="whatitis-content fade-up">
+          <div class="gold-line"></div>
+          <span class="label">Qué es</span>
+          <h2>Físico. Tuyo.<br/>Sin límites.</h2>
+          <p>
+            No es un SaaS. No vive en la nube de otra empresa.
+            Es un <strong>Mac Mini</strong> — hardware real — que vive en tu casa u oficina.
+            Adentro corre <strong>OpenClaw</strong>, la plataforma de IA más avanzada para agentes personales.
+          </p>
+          <p>
+            Tu asistente tiene nombre propio. Se conecta con todo lo que usas.
+            Aprende quién eres, cómo trabajas y qué necesitas.
+            Después de configurarlo, ya no piensas en él. Solo funciona.
+          </p>
+          <div class="tech-stack">
+            <span class="tech-pill">Mac Mini</span>
+            <span class="tech-pill">OpenClaw</span>
+            <span class="tech-pill">Claude AI</span>
+            <span class="tech-pill">WhatsApp</span>
+            <span class="tech-pill">Telegram</span>
+            <span class="tech-pill">Gmail</span>
+            <span class="tech-pill">Google Calendar</span>
+            <span class="tech-pill">Discord</span>
+            <span class="tech-pill">Slack</span>
+            <span class="tech-pill">Asana</span>
+            <span class="tech-pill">Y más</span>
+          </div>
+        </div>
+        <div class="hardware-card fade-up">
+          <div class="hw-label">Incluido en $1,500 USD/mes</div>
+          <div class="hw-item">
+            <div class="hw-icon">🖥️</div>
+            <div class="hw-text">
+              <strong>Mac Mini dedicado con OpenClaw</strong>
+              <span>Hardware Apple real corriendo tu IA 24/7. En tu casa u oficina. Tus datos, tu control.</span>
+            </div>
+          </div>
+          <div class="hw-item">
+            <div class="hw-icon">🧠</div>
+            <div class="hw-text">
+              <strong>Configuración personalizada para tu negocio</strong>
+              <span>Tu asistente tiene nombre propio. Aprende tu contexto, tu voz, tus procesos. Hecho a medida.</span>
+            </div>
+          </div>
+          <div class="hw-item">
+            <div class="hw-icon">💬</div>
+            <div class="hw-text">
+              <strong>Conexión a Telegram (mensajería base)</strong>
+              <span>Tu canal directo con tu asistente. Dile qué hacer. Recibe reportes. Todo desde el chat.</span>
+            </div>
+          </div>
+          <div class="hw-item">
+            <div class="hw-icon">🚀</div>
+            <div class="hw-text">
+              <strong>Soporte y onboarding completo</strong>
+              <span>Nosotros instalamos, configuramos y te hacemos el onboarding. Tú solo empiezas a trabajar.</span>
+            </div>
+          </div>
+
+          <div class="hw-divider"></div>
+          <div class="hw-label" style="margin-bottom: 16px; color: var(--text-muted); opacity: 0.7;">Opcional (add-on)</div>
+
+          <div class="hw-item hw-item--addon">
+            <div class="hw-icon hw-icon--dim">📱</div>
+            <div class="hw-text">
+              <strong>WhatsApp Business</strong>
+              <span>Integración con costo mensual adicional. Tu asistente responde clientes directamente en WhatsApp.</span>
+            </div>
+          </div>
+          <div class="hw-item hw-item--addon">
+            <div class="hw-icon hw-icon--dim">🔗</div>
+            <div class="hw-text">
+              <strong>Conexiones adicionales</strong>
+              <span>Email, Google Calendar, CRM, Slack y más. Cada integración se cotiza según tu stack.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── CAPABILITIES ─── -->
+  <section id="capabilities">
+    <div class="container">
+      <div class="caps-header fade-up">
+        <div class="gold-line"></div>
+        <span class="label">Qué hace</span>
+        <h2>No sugiere.<br/>Ejecuta.</h2>
+        <p>Cuatro cosas que cambian cómo trabajas desde el primer día.</p>
+      </div>
+      <div class="caps-grid">
+        <div class="cap-item fade-up">
+          <div class="cap-number">01</div>
+          <h3>Contenido y marketing sin parar</h3>
+          <p>
+            Crea posts, emails, copys de venta, guiones de video — con tu voz, tu estilo.
+            Tu asistente conoce tu marca mejor que cualquier freelancer. 
+            Y trabaja los 365 días del año.
+          </p>
+          <div class="cap-tags">
+            <span class="cap-tag">Email campaigns</span>
+            <span class="cap-tag">Social media</span>
+            <span class="cap-tag">Copys</span>
+          </div>
+        </div>
+        <div class="cap-item fade-up">
+          <div class="cap-number">02</div>
+          <h3>Follow-up de leads automático</h3>
+          <p>
+            Nadie se cae del funnel por falta de seguimiento.
+            Tu asistente detecta leads fríos, los retoma, responde consultas y agenda llamadas.
+            Sin que tú muevas un dedo.
+          </p>
+          <div class="cap-tags">
+            <span class="cap-tag">WhatsApp</span>
+            <span class="cap-tag">Email</span>
+            <span class="cap-tag">CRM</span>
+          </div>
+        </div>
+        <div class="cap-item fade-up">
+          <div class="cap-number">03</div>
+          <h3>Mensajería y operaciones</h3>
+          <p>
+            Responde en WhatsApp, Telegram, Discord y Email con tu voz y contexto.
+            Coordina tu equipo, agenda reuniones, envía reportes.
+            Tú decides. Él ejecuta.
+          </p>
+          <div class="cap-tags">
+            <span class="cap-tag">Telegram</span>
+            <span class="cap-tag">Discord</span>
+            <span class="cap-tag">Calendar</span>
+          </div>
+        </div>
+        <div class="cap-item fade-up">
+          <div class="cap-number">04</div>
+          <h3>Analytics e inteligencia de negocio</h3>
+          <p>
+            Analiza métricas, consolida reportes, detecta patrones.
+            Cada semana un resumen de lo que importa — sin que tengas que pedirlo.
+            Decisiones más rápidas. Menos tiempo mirando dashboards.
+          </p>
+          <div class="cap-tags">
+            <span class="cap-tag">Reportes</span>
+            <span class="cap-tag">Métricas</span>
+            <span class="cap-tag">Alertas</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── SOCIAL PROOF ─── -->
+  <section id="proof">
+    <div class="container">
+      <div class="proof-header fade-up">
+        <div class="gold-line" style="margin: 0 auto 24px;"></div>
+        <span class="label" style="display: block; margin-bottom: 16px;">Ya tienen el suyo</span>
+        <h2>Ellos ya dejaron<br/>de trabajar solos.</h2>
+      </div>
+
+      <!-- Viral banner -->
+      <div class="viral-banner fade-up">
+        <div class="viral-left">
+          <span class="viral-fire">🔥</span>
+          <div>
+            <strong>OpenClaw está causando escasez de Mac Minis a nivel mundial</strong>
+            <span>Viral en X · TikTok · YouTube — La revolución ya empezó</span>
+          </div>
+        </div>
+        <div class="viral-platforms">
+          <span>𝕏</span>
+          <span>TikTok</span>
+          <span>YouTube</span>
+        </div>
+      </div>
+
+      <div class="proof-grid">
+        <div class="proof-card fade-up">
+          <p class="proof-quote">"WOOOW. Obsesión total. No puedo trabajar sin Moby."</p>
+          <div class="proof-author">
+            <div class="author-avatar">O</div>
+            <div class="author-info">
+              <strong>Oskinde</strong>
+              <span>Su asistente: Moby 🐋</span>
+            </div>
+          </div>
+        </div>
+        <div class="proof-card fade-up">
+          <p class="proof-quote">"Productividad multiplicada. Pepe maneja todo lo que antes me quitaba horas."</p>
+          <div class="proof-author">
+            <div class="author-avatar">C</div>
+            <div class="author-info">
+              <strong>Cris de Criver</strong>
+              <span>Su asistente: Pepe 🎯</span>
+            </div>
+          </div>
+        </div>
+        <div class="proof-card fade-up">
+          <p class="proof-quote">"Recuperé tiempo que pensé que había perdido para siempre. Osminion es un crack."</p>
+          <div class="proof-author">
+            <div class="author-avatar">D</div>
+            <div class="author-info">
+              <strong>Diego Soman</strong>
+              <span>Su asistente: Osminion ⚡</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── HOW IT WORKS ─── -->
+  <section id="howitworks">
+    <div class="container">
+      <div class="hiw-header fade-up">
+        <div class="gold-line"></div>
+        <span class="label">Cómo funciona</span>
+        <h2>Tres pasos.<br/>Luego olvidas que existe.</h2>
+        <p>No tienes que hacer nada técnico. Nosotros nos encargamos de todo.</p>
+      </div>
+      <div class="steps">
+        <div class="step fade-up">
+          <div class="step-num">01</div>
+          <h3>Nosotros lo instalamos</h3>
+          <p>
+            Configuramos el Mac Mini con OpenClaw y la IA base.
+            Hardware, software, todo listo. Tú no tocas nada técnico.
+          </p>
+        </div>
+        <div class="step fade-up">
+          <div class="step-num">02</div>
+          <h3>Lo configuramos para ti</h3>
+          <p>
+            Una sesión contigo para entender tu negocio, tus apps y tus procesos.
+            Le damos contexto, nombre, personalidad. Lo hacemos tuyo.
+          </p>
+        </div>
+        <div class="step fade-up">
+          <div class="step-num">03</div>
+          <h3>Tú empiezas a trabajar</h3>
+          <p>
+            Desde el primer día. Tu asistente ya sabe qué hacer.
+            Solo dile qué necesitas. O no le digas nada — ya está ejecutando.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── WAITLIST CTA ─── -->
+  <section id="waitlist">
+    <div class="waitlist-inner">
+      <div class="fade-up">
+        <div class="gold-line"></div>
+        <span class="label">Lista de espera</span>
+        <h2 class="waitlist-headline">
+          10 cupos.<br/>
+          <em>¿Uno es tuyo?</em>
+        </h2>
+        <p class="waitlist-sub">
+          Cada setup es manual, personalizado y hecho a medida.
+          Incluye Mac Mini, OpenClaw, configuración completa y conexión a Telegram.
+          WhatsApp disponible como add-on. Tus datos, tu hardware, tu control.
+          Nosotros instalamos todo — tú solo empiezas a trabajar.
+        </p>
+        <div class="spots-warning">
+          <span class="spots-dot"></span>
+          Solo 10 cupos disponibles — sin garantía de reapertura
+        </div>
+      </div>
+
+      <div class="form-wrapper fade-up">
+        <form class="form" id="waitlistForm" novalidate>
+          <div class="form-row">
+            <div class="field">
+              <label for="name">Nombre completo</label>
+              <input type="text" id="name" name="name" placeholder="Ej. Carlos Mendoza" required />
+            </div>
+            <div class="field">
+              <label for="email">Tu email</label>
+              <input type="email" id="email" name="email" placeholder="tu@email.com" required />
+            </div>
+          </div>
+          <div class="field">
+            <label for="usecase">¿Qué harías con tu asistente de IA?</label>
+            <textarea 
+              id="usecase" 
+              name="usecase" 
+              placeholder="Ej. Automatizar seguimiento de leads, crear contenido para redes, manejar mensajes de clientes..."
+              required
+            ></textarea>
+          </div>
+          <div class="form-submit">
+            <button type="submit" class="btn-submit">RESERVAR MI CUPO →</button>
+            <div>
+              <p class="form-note">
+                Te contactamos personalmente en 48 horas.
+                Sin spam. Solo si hay fit real.
+              </p>
+              <p class="form-price"><strong>$1,500 USD/mes</strong> — hardware, setup y soporte incluidos.<br/>Integración WhatsApp disponible como add-on.</p>
+            </div>
+          </div>
+        </form>
+
+        <div class="form-success" id="formSuccess">
+          <h3>Listo. 🌱</h3>
+          <p>
+            Recibimos tu solicitud.<br/>
+            Te contactamos en las próximas 48 horas.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FOOTER ─── -->
+  <footer>
+    <div class="footer-logo">OpenClaw</div>
+    <p class="footer-note">
+      Inteligencia dedicada. Sin límites. Sin excusas.
+    </p>
+  </footer>
+
+  <!-- ─── JS ─── -->
+  <script>
+    // ─── INTERSECTION OBSERVER (fade-up animations) ───
+    const fadeEls = document.querySelectorAll('.fade-up');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          // Stagger items within the same section
+          const siblings = entry.target.parentElement.querySelectorAll('.fade-up');
+          let delay = 0;
+          siblings.forEach((sib, idx) => {
+            if (sib === entry.target) delay = idx * 80;
+          });
+          setTimeout(() => {
+            entry.target.classList.add('visible');
+          }, delay);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+
+    fadeEls.forEach(el => observer.observe(el));
+
+    // ─── FORM HANDLER ───
+    const form = document.getElementById('waitlistForm');
+    const successEl = document.getElementById('formSuccess');
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const name = form.name.value.trim();
+      const email = form.email.value.trim();
+      const usecase = form.usecase.value.trim();
+
+      if (!name || !email || !usecase) {
+        // Simple shake animation on empty fields
+        [form.name, form.email, form.usecase].forEach(field => {
+          if (!field.value.trim()) {
+            field.style.borderColor = 'rgba(217, 79, 61, 0.6)';
+            setTimeout(() => field.style.borderColor = '', 2000);
+          }
+        });
+        return;
+      }
+
+      // Save to localStorage
+      const entry = { name, email, usecase, timestamp: new Date().toISOString() };
+      const existing = JSON.parse(localStorage.getItem('openclaw_waitlist') || '[]');
+      existing.push(entry);
+      localStorage.setItem('openclaw_waitlist', JSON.stringify(existing));
+
+      // Show success
+      form.style.display = 'none';
+      successEl.classList.add('visible');
+
+      // Optional: try to post to a webhook (fails silently if not configured)
+      fetch('https://hooks.zapier.com/hooks/catch/openclaw-waitlist/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(entry)
+      }).catch(() => {});
+    });
+
+    // ─── PARALLAX ON HERO MAC ───
+    const macScene = document.querySelector('.mac-scene');
+    let ticking = false;
+
+    document.addEventListener('mousemove', (e) => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          const x = (e.clientX / window.innerWidth - 0.5) * 10;
+          const y = (e.clientY / window.innerHeight - 0.5) * -6;
+          if (macScene) {
+            macScene.style.setProperty('--mx', `${x}deg`);
+            macScene.style.setProperty('--my', `${y}deg`);
+          }
+          ticking = false;
+        });
+        ticking = true;
+      }
+    });
+
+    // Add mouse-influenced transform to the mac
+    if (macScene) {
+      const baseAnim = macScene.style.animation;
+      // We override rotation slightly on hover — CSS handles base animation
+      macScene.addEventListener('mouseenter', () => {
+        macScene.style.animationPlayState = 'paused';
+      });
+      macScene.addEventListener('mouseleave', () => {
+        macScene.style.animationPlayState = 'running';
+      });
+    }
+
+    // ─── SMOOTH SCROLL ───
+    document.querySelectorAll('a[href^="#"]').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = document.querySelector(link.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+
+    // ─── NAV SHADOW ON SCROLL ───
+    const navEl = document.querySelector('nav');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 60) {
+        navEl.style.background = 'rgba(10,10,10,0.96)';
+        navEl.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+      } else {
+        navEl.style.background = '';
+        navEl.style.borderBottom = '';
+      }
+    }, { passive: true });
+  </script>
+</body>
+</html>
